@@ -11,21 +11,22 @@ int TcpServer::GetMsgSize()
 
 bool TcpServer::ProcessPacket(SOCKET sock,PacketType packet)
 {
+	char * mess = new char[1024];
+
 	switch (packet)
 	{
+	case NewUser:
+		//recv(sock,mess,1024,NULL);
+		//std::cout << *mess << std::endl;
+
+	
 	case MsgText:
-		break;
-	case TestStructMsg:
-		TestStruct test;
-		recv(sock,(char*)&test,sizeof(TestStruct),NULL);
+		recv(sock, mess, 1024, NULL);
+		for (auto v : Users) {
+			Send(v.handler, MsgText, mess,1024);
+		}
 
-		std::cout << "Received packet \n" + std::to_string(test.aaa) + "\n" + test.bbb << std::endl;
 
-		++test.aaa;
-		test.bbb = 'i';
-
-		Send(sock,TestStructMsg,test);
-		break;
 	default:
 		break;
 	}
@@ -66,9 +67,11 @@ void TcpServer::Listen()
 	while (isListen)
 	{
 		conn = accept(handler,(SOCKADDR*)&addr,&_sizeaddr);
-		sockets.insert(conn);
 
-		std::cout << "Connected client!" << std::endl;
+		User us;
+		us.handler = conn;
+		Users.push_back(us);
+
 		std::thread th(&TcpServer::Socketlisten,this,conn);
 		th.detach();
 	}
@@ -82,8 +85,14 @@ void TcpServer::Socketlisten(SOCKET sock)
 			ProcessPacket(sock, packet);
 		}
 		else {
-			sockets.erase(sock);
-			std::cout << "Client disconnected!" << std::endl;
+			auto user = std::find_if(Users.begin(), Users.end(), [&](User u) {
+			    return sock == u.handler ? true : false;
+			});
+
+			if (user != Users.end()) {
+				Users.erase(user);
+				std::cout << "Client disconnected!" << std::endl;
+			}
 			break;
 		}
 	}

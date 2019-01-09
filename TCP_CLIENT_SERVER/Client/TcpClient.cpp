@@ -23,7 +23,7 @@ bool TcpClient::Connect(const std::string ip,const  int port)
 
 	std::cout << "Connected to "+ip << std::endl;
 
-	//StartListening();
+	StartListening();
 
 	return true;
 }
@@ -42,14 +42,13 @@ int TcpClient::GetMsgSize() {
 bool TcpClient::ProcessPacket(PacketType packet)
 {
 	int msg_size;
-	std::string msg;
+	char * mess = new char[1024];
 
 	switch (packet) {
 
-	case TestStructMsg:
-		TestStruct test;
-		recv(handler,(char*)&test,sizeof(TestStruct),NULL);
-		std::cout << "Received packet: \n" + std::to_string(test.aaa)+"\n"+test.bbb << std::endl;
+	case MsgText:
+		recv(handler, mess, 1024, NULL);
+		std::cout << mess << std::endl;
 		return true;
 
 	default:

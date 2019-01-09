@@ -3,17 +3,8 @@
 #include <winsock2.h>
 #include <iostream>
 #include <string>
+#include "D:\Projects\с++\Сети\TCP_CLIENT_SERVER\Components.h"
 #pragma warning(disable: 4996)
-
-enum PacketType {
-	MsgText,
-	TestStructMsg
-};
-
-struct TestStruct {
-	int aaa;
-	char bbb;
-};
 
 class TcpClient
 {
@@ -38,7 +29,7 @@ public:
 	void LoadConfig(std::string configfile);
 	bool ParsConfig(std::string config);
 	template < typename T >
-	void Send(PacketType p, T o);
+	void Send(PacketType p, T o, int size);
 
 	template < typename T >
 	void SendAwaitAndRecv(PacketType packet, T msg);
@@ -48,14 +39,14 @@ public:
 };
 
 template<typename T>
-inline void TcpClient::Send(PacketType packet, T msg)
+void TcpClient::Send(PacketType packet, T msg,int size)
 {
 	send(handler, (char*)&packet, sizeof(PacketType),NULL);
-	send(handler, (char*)&msg, sizeof(T),NULL);
+	send(handler, msg, size,NULL);
 }
 
 template<typename T>
-inline void TcpClient::SendAwaitAndRecv(PacketType packet, T msg)
+void TcpClient::SendAwaitAndRecv(PacketType packet, T msg)
 {
 	PacketType recv_packet;
 

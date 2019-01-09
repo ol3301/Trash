@@ -12,17 +12,18 @@ int main() {
 		std::cout << "Initial network error" << std::endl;
 	}
 
-	TcpClient client;
-	client.LoadConfig("config.txt");
-	client.Connect();
+	while (true)
+	{
+		TcpClient client;
+		client.LoadConfig("config.txt");
+		client.Connect();
+		char * mess = new char[1024];
+		mess = (char*)"Hello world!";
+		client.Send(MsgText,mess,1024);
 
-	TestStruct test;
-	test.aaa = 1;
-	test.bbb = 'a';
+		system("pause");
+	}
 
-	client.SendAwaitAndRecv(TestStructMsg,test);
-
-	system("pause");
 	WSACleanup();
 	return 0;
 }

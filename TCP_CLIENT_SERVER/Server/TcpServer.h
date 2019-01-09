@@ -4,26 +4,18 @@
 #include <iostream>
 #include <string>
 #include <mutex>
-#include <set>
+#include <list>
+#include <algorithm>
+#include "D:\Projects\с++\Сети\TCP_CLIENT_SERVER\Components.h"
+
 #pragma warning(disable: 4996)
-
-enum PacketType {
-	MsgText,
-	TestStructMsg
-};
-
-struct TestStruct {
-	int aaa;
-	char bbb;
-};
-
 
 class TcpServer
 {
 private:
 	SOCKET handler;
 	SOCKADDR_IN addr;
-	std::set<SOCKET> sockets;
+	std::list<User> Users;
 
 	bool isListen = false;
 	int sizeofaddr;
@@ -35,15 +27,19 @@ private:
 	void Socketlisten(SOCKET sock);
 public:
 	template < typename T >
-	void Send(SOCKET sock,PacketType packet, T msg);
+	void Send(SOCKET sock,PacketType packet, T msg, int size);
 	bool StartListening(const int port);
 	TcpServer();
 	~TcpServer();
 };
 
+class UdpServer : public TcpServer {
+
+};
+
 template<typename T>
-inline void TcpServer::Send(SOCKET sock,PacketType packet, T msg)
+void TcpServer::Send(SOCKET sock,PacketType packet, T msg,int size)
 {
 	send(sock,(char*)&packet,sizeof(PacketType),NULL);
-	send(sock,(char*)&msg,sizeof(T),NULL);
+	send(sock, msg, size,NULL);
 }
